@@ -1,0 +1,19 @@
+#!/bin/bash
+
+## Run with scene as parameter
+## example: /klimascripts/klf-script Alles_auf
+
+SCENE=$1
+TOKEN=$(curl 'http://172.22.2.7/api/v1/auth' -s -X POST -d '{"action":"login","params":{"password":"xxx"}}')
+echo $TOKEN
+USETOKEN=$(echo $TOKEN | grep -Po '(?<="token":")[^"]*')
+echo $USETOKEN
+
+SCENERES=$(curl 'http://172.22.2.7/api/v1/scenes' -s -X POST -d '{"action":"get","params":{}}' -H "Authorization: Bearer $USETOKEN")
+
+echo $SCENERES
+SCENEID=$(echo $SCENERES | grep -Po '(?<="name":"'$SCENE'","id":)[0-9]')
+
+echo $SCENEID
+echo $(curl 'http://172.22.2.7/api/v1/scenes' -s -X POST -d "{\"action\":\"run\",\"params\":{\"id\":$SCENEID}}" -H "Authorization: Bearer $USETOKEN")
+echo $(curl 'http://172.22.2.7/api/v1/auth' -X POST -d '{"action":"logout","params":{}}' -H "Authorization: Bearer $USETOKEN")
